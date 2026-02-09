@@ -1,12 +1,12 @@
 device_mappings:
-  phone1: fc4d2504
+  phone1: (serial no of device. see `adb devices`)
 device_port: 51825
 flask_port: 11825
 mode: development
 phone_port_mappings: {}
 prefer_phone_action_type: adb
 
-use_ruyix_service: true
+use_ruyix_service: false
 ruyix_url: ?
 ruyix_key: ?
 use_custom_fm: true
