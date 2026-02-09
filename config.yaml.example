@@ -1,0 +1,32 @@
+device_mappings:
+  phone1: fc4d2504
+device_port: 51825
+flask_port: 11825
+mode: development
+phone_port_mappings: {}
+prefer_phone_action_type: adb
+
+use_ruyix_service: true
+ruyix_url: ?
+ruyix_key: ?
+use_custom_fm: true
+custom_fm_url: ?
+custom_fm_key: ?
+custom_fm_name: ?
+use_custom_gui_vlm: true
+custom_gui_vlm_url: ?
+custom_gui_vlm_key: ?
+custom_gui_vlm_name: ?
+
+root_dir: (path to root dir)
+name: (name of your bot)
+org_name: (name of your org)
+task_language: en
+save_query_for_debug: false
+log_level: 20   # Info
+
+chat_channels: zulip
+chat_zulip_email: ? (zulip bot config)
+chat_zulip_key: ?
+chat_zulip_site: ?
+chat_zulip_org_manager: ? (org manager's zulip email)
