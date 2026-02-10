@@ -1,6 +1,8 @@
 # MobileClaw
 
-Fully Autonomous Mobile Agent.
+MobileClaw is a **Fully Autonomous Mobile Agent**.
+
+Our mission is to create low-barrier openclaw-style agents for everyone in daily use, not just for programmers!
 
 Features:
 - Natively built for mobile devices (e.g. Android).
@@ -49,7 +51,16 @@ chat_telegram_proxy: http://proxy:port  # Optional, if you need a proxy
 - Visit [Feishu Open Platform](https://open.feishu.cn/app)
 - Create a new app → Enable **Bot** capability
 - Get **App ID** and **App Secret** from "Credentials & Basic Info"
-- Grant permissions: 
+- Grant following permissions to the bot:
+  - im:message.group_msg
+  - contact:contact.base:readonly
+  - im:chat
+  - im:chat:read
+  - im:message
+  - im:message.reactions:write_only
+  - im:message:send_as_bot
+  - im:resource
+- Enable **Long Connection** mode (requires starting mobileclaw once with lark to establish connection)
 
 **2. Configure in `config.yaml`**
 ```yaml
