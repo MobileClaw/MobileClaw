@@ -43,7 +43,7 @@ class DeviceControllerBase(UniInterface):
     def __str__(self) -> str:
         return f"Device Interface: {self.device_name}"
 
-    def execute_task(self, task: str, knowledge='', max_steps: int = 30, keep_recent_images: int = 3):
+    def execute_task(self, task: str, knowledge='', max_steps: int = 20, keep_recent_images: int = 3):
         """
         Execute a device control task using iterative LLM-generated Python code.
 
@@ -138,7 +138,7 @@ class DeviceControllerBase(UniInterface):
 
             # Stop if no code generated
             if not code:
-                warning_msg = f"Step {step} Error: No code parsed from the response."
+                warning_msg = f"Step {step} Error: No code parsed from the response. Perhaps forgot to wrap code in code block?"
                 logger.warning(warning_msg)
                 self.agent._log_and_report(warning_msg, actions_and_results, task_tag=task_tag)
                 continue # break
@@ -170,7 +170,7 @@ class DeviceControllerBase(UniInterface):
                 logger.error(error_msg)
                 results.append(f"{error_msg}")
                 self.agent._log_and_report(error_msg, actions_and_results, task_tag=task_tag)
-                break
+                continue # NOTE: decide between break or continue
 
             # Sleep between steps
             self.agent.sleep(0.5)

@@ -209,7 +209,7 @@ class AutoAgent:
             return (None, [])
         return self._current_task_stack[-1]  # Return the top of the stack
 
-    def execute_task(self, task, knowledge='', actions_and_results=[], max_steps=20, _recursion_depth=0, mode='normal'):
+    def execute_task(self, task, knowledge='', actions_and_results=[], max_steps=30, _recursion_depth=0, mode='normal'):
         """
         Let the agent execute a task
         The execution process is a loop. At each step, let the model decide what actions to take next.
@@ -328,7 +328,7 @@ class AutoAgent:
                     err_msg = f"{indent}Error: step {step} was failed: {e}"
                     logger.error(err_msg)
                     self._log_and_report(err_msg, actions_and_results, task_tag)
-                    break
+                    continue # NOTE: decide between break or continue
 
             # Get results before concluding
             results = agent_api._results

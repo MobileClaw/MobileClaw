@@ -45,5 +45,8 @@ setup(
         'pyyaml',
         "Pillow",
         'zulip',
+        'lark_oapi',
+        'qq-botpy>=1.2.0',
+        'python-telegram-bot>=20.0',
     ],
 )

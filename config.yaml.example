@@ -25,7 +25,7 @@ task_language: en
 save_query_for_debug: false
 log_level: 20   # Info
 
-chat_channels: zulip
+chat_channels: zulip,lark
 chat_zulip_email: ? (zulip bot config)
 chat_zulip_key: ?
 chat_zulip_site: ?

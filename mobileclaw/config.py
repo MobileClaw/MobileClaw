@@ -65,6 +65,18 @@ class AgentConfig:
     chat_zulip_site: Optional[str] = field(default=None, metadata={"help": "Zulip site for chat."})
     chat_zulip_org_manager: Optional[str] = field(default=None, metadata={"help": "Zulip email of the org owner."})
 
+    chat_lark_app_id: Optional[str] = field(default=None, metadata={"help": "Lark/Feishu app ID for chat."})
+    chat_lark_app_secret: Optional[str] = field(default=None, metadata={"help": "Lark/Feishu app secret for chat."})
+    chat_lark_org_manager: Optional[str] = field(default=None, metadata={"help": "Lark/Feishu open_id of the org owner."})
+
+    chat_qq_app_id: Optional[str] = field(default=None, metadata={"help": "QQ bot app ID for chat."})
+    chat_qq_secret: Optional[str] = field(default=None, metadata={"help": "QQ bot secret for chat."})
+    chat_qq_org_manager: Optional[str] = field(default=None, metadata={"help": "QQ user_id of the org owner."})
+
+    chat_telegram_token: Optional[str] = field(default=None, metadata={"help": "Telegram bot token for chat."})
+    chat_telegram_org_manager: Optional[str] = field(default=None, metadata={"help": "Telegram user_id of the org owner."})
+    chat_telegram_proxy: Optional[str] = field(default=None, metadata={"help": "Proxy URL for Telegram (e.g., http://proxy:port)."})
+
     save_query_for_debug: bool = field(default=False, metadata={"help": "Whether to save model query prompts and responses for debugging."})
     run_with_ide: bool = field(default=False, metadata={"help": "Whether to run as a submodule of IDE."})
     execution_id: str = field(default='execution_id_1', metadata={"help": "Execution ID."})

@@ -12,6 +12,9 @@ class Chat_Interface(UniInterface):
         self.chat_channels = agent.config.chat_channels
         self.chat_clients = {}
         self.default_chat_channel = agent.config.default_chat_channel
+        # Global channel settings for logs and reports (set via commands)
+        self.log_channel = None  # Channel to use for send_to_log
+        self.report_channel = None  # Channel to use for send_message when receiver is None
 
     def __str__(self) -> str:
         return "Chat interface"
@@ -22,6 +25,24 @@ class Chat_Interface(UniInterface):
             self.zulip_client = Zulip_Client(self.agent)
             self.zulip_client._open()
             self.chat_clients['zulip'] = self.zulip_client
+
+        if 'lark' in self.chat_channels:
+            from .lark_client import Lark_Client
+            self.lark_client = Lark_Client(self.agent)
+            self.lark_client._open()
+            self.chat_clients['lark'] = self.lark_client
+
+        if 'qq' in self.chat_channels:
+            from .qq_client import QQ_Client
+            self.qq_client = QQ_Client(self.agent)
+            self.qq_client._open()
+            self.chat_clients['qq'] = self.qq_client
+
+        if 'telegram' in self.chat_channels:
+            from .telegram_client import Telegram_Client
+            self.telegram_client = Telegram_Client(self.agent)
+            self.telegram_client._open()
+            self.chat_clients['telegram'] = self.telegram_client
 
     def _close(self):
         for client in self.chat_clients.values():
@@ -76,8 +97,11 @@ class Chat_Interface(UniInterface):
         Args:
             message: Message content to send
             subject: Subject/topic for the message
-            channel: Channel to use (optional, defaults to default_chat_channel)
+            channel: Channel to use (optional, defaults to log_channel or default_chat_channel)
         """
+        # Use log_channel if set and no explicit channel specified
+        if channel is None and self.log_channel is not None:
+            channel = self.log_channel
         client = self._get_client(channel)
         if client is not None and hasattr(client, 'send_to_log'):
             client.send_to_log(message, subject)
@@ -89,8 +113,11 @@ class Chat_Interface(UniInterface):
         Args:
             message: Can be a string, an image/file (represented as a path) or a list of them
             receiver: Name/id of the message receiver (can be a user or a group)
-            channel: Channel to use (optional, defaults to default_chat_channel)
+            channel: Channel to use (optional, defaults to report_channel or default_chat_channel)
         """
+        # Use report_channel if set, no explicit channel specified, and no receiver specified
+        if channel is None and receiver is None and self.report_channel is not None:
+            channel = self.report_channel
         client = self._get_client(channel)
         if client is not None and hasattr(client, 'send_message'):
             client.send_message(message, receiver)

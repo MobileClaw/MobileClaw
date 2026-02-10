@@ -1,15 +1,22 @@
 """
 The interfaces to chat with users or other agents.
 """
-import zulip
 import re
 import io
 import random
 import requests
 import base64
-from PIL import Image
 from threading import Thread
 import structlog
+
+try:
+    import zulip
+    from PIL import Image
+    ZULIP_AVAILABLE = True
+except ImportError:
+    ZULIP_AVAILABLE = False
+    zulip = None
+    Image = None
 
 from mobileclaw.utils.interface import UniInterface
 from .chat_utils import Chat_Client
@@ -29,8 +36,16 @@ class Zulip_Client(Chat_Client):
         self._serving_thread = None
         # Maintain mapping of user names/ids to email addresses
         self._user_mapping = {}  # {name: email, id: email}
+        # Log receiver for send_to_log messages
+        self.log_receiver = None  # Set via /log_here command
+        # Report receiver for send_message when receiver is None
+        self.report_receiver = None  # Set via /report_here command
 
     def _open(self):
+        if not ZULIP_AVAILABLE:
+            logger.error('Zulip SDK not installed. Run: pip install zulip', action='start zulip client', status='failed')
+            return
+
         try:
             self.client = zulip.Client(
                 email=self.agent.config.chat_zulip_email,
@@ -93,6 +108,11 @@ class Zulip_Client(Chat_Client):
         sender_id = msg['sender_id']
         sender_name = msg['sender_full_name']
 
+        # Handle commands (only from org_manager)
+        if content.startswith('/') and sender_email == self.org_manager_email:
+            self._handle_command(content.strip(), msg)
+            return
+
         if msg['type'] == 'private':
             sender_name_new = sender_name
         else:
@@ -113,6 +133,71 @@ class Zulip_Client(Chat_Client):
         history_messages = self.get_history_messages(msg)
         history_content = "\n".join([f'[{m[2]}] {m[0]}: {m[1]}' for m in history_messages])
         self.agent.handle_message(content, history=history_content, sender=sender_name_new, channel='zulip')
+
+    def _handle_command(self, command: str, msg):
+        """
+        Handle bot commands from org_manager.
+
+        Args:
+            command: The command string (e.g., "/log_here")
+            msg: The message object
+        """
+        try:
+            # Determine receiver based on message type
+            if msg['type'] == 'private':
+                receiver = msg['sender_email']
+            else:
+                # For stream messages, use "group:stream_name" format
+                receiver = f"group:{msg['display_recipient']}"
+
+            if command.endswith("/log_here"):
+                # Set local log receiver
+                self.log_receiver = receiver
+                # Set global log channel
+                self.agent.chat.log_channel = 'zulip'
+                response_text = "✅ Log receiver set to this chat. Logs will be sent here."
+                logger.info(f"Log receiver set to: {receiver}, global log channel set to zulip")
+
+            elif command.endswith("/stop_log_here"):
+                self.log_receiver = None
+                # Clear global log channel if it was zulip
+                if self.agent.chat.log_channel == 'zulip':
+                    self.agent.chat.log_channel = None
+                response_text = "✅ Log receiver cleared. Logs will no longer be sent."
+                logger.info("Log receiver cleared")
+
+            elif command.endswith("/report_here"):
+                # Set local report receiver
+                self.report_receiver = receiver
+                # Set global report channel
+                self.agent.chat.report_channel = 'zulip'
+                response_text = "✅ Report receiver set to this chat. Progress reports will be sent here."
+                logger.info(f"Report receiver set to: {receiver}, global report channel set to zulip")
+
+            elif command.endswith("/stop_report_here"):
+                self.report_receiver = None
+                # Clear global report channel if it was zulip
+                if self.agent.chat.report_channel == 'zulip':
+                    self.agent.chat.report_channel = None
+                response_text = "✅ Report receiver cleared. Reports will be sent to org_manager."
+                logger.info("Report receiver cleared")
+
+            else:
+                # Unknown command
+                response_text = (
+                    f"❓ Unknown command: {command}\n\n"
+                    "Available commands:\n"
+                    "/log_here - Set this chat as log receiver\n"
+                    "/stop_log_here - Stop sending logs to this chat\n"
+                    "/report_here - Set this chat as report receiver\n"
+                    "/stop_report_here - Stop sending reports to this chat"
+                )
+
+            # Send response as reply
+            self.send_reply(response_text, msg)
+
+        except Exception as e:
+            logger.exception(f"Error handling command: {e}")
     
     def send_message(self, message, receiver=None, subject=None):
         """
@@ -126,7 +211,11 @@ class Zulip_Client(Chat_Client):
         """
         try:
             if receiver is None:
-                receiver = self.org_manager_email
+                # Use report_receiver if set, otherwise default to org_manager
+                if self.report_receiver:
+                    receiver = self.report_receiver
+                else:
+                    receiver = self.org_manager_email
             # Check if receiver has "group:" prefix
             if receiver.startswith("group:"):
                 # Stream message - remove the prefix
@@ -176,7 +265,7 @@ class Zulip_Client(Chat_Client):
 
             query = {
                 'anchor': msg['id'],
-                'num_before': 100,  # adjust this value as needed
+                'num_before': max_previous_messages,  # adjust this value as needed
                 'num_after': 0,
                 'apply_markdown': False,
                 'include_anchor': False,
@@ -346,13 +435,21 @@ class Zulip_Client(Chat_Client):
     def send_to_log(self, message, subject="Log"):
         """
         Sends a message to the self-reporting stream.
-        Creates the stream if it doesn't exist.
+        If log_receiver is set, sends to that receiver instead.
 
         Args:
             message: Message content to send
-            subject: Subject/topic for the message (default: "General")
+            subject: Subject/topic for the message (default: "Log")
         """
-        stream_name = f'{self.agent.name}'
-        description = f"Self-reporting stream of {self.agent.name}"
-        self._send_to_stream(stream_name, message, subject, description)
+        if self.log_receiver is None:
+            # Default behavior: send to agent's self-reporting stream
+            stream_name = f'{self.agent.name}'
+            description = f"Self-reporting stream of {self.agent.name}"
+            self._send_to_stream(stream_name, message, subject, description)
+        else:
+            # Send to the configured log receiver
+            try:
+                self.send_message(message, receiver=self.log_receiver, subject=subject)
+            except Exception as e:
+                logger.exception(f'Error sending to log receiver: {e}')
 

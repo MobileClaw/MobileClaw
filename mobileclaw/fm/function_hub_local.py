@@ -926,14 +926,14 @@ Note:
 1. Review the task execution history and results.
 2. Extract key information, learnings, and outcomes.
 3. Update relevant knowledge files (e.g., procedures, facts, contacts) and today's daily memory file if worth and haven't done so.
-4. Send task results to the manager if worth and haven't done so.
+4. Send task results to the manager if worth and haven't done so. DO NOT send same message repetitively.
 """
 
         # Build API documentation based on mode
         # Exclude device and task decomposition APIs in handle_message and conclude_task modes
         api_docs = """
 - Messaging
-  - `agent.send_message(message, receiver)`: send a message to the receiver. `message` can be a string, an image/file (represented as file path). `receiver` is the name/id. `receiver=None` means sending to the manager. This API is used for sending messages through internal channels.
+  - `agent.send_message(message, receiver=None, channel=None)`: send a message to the `receiver` via `channel`. `message` can be a string, an image/file (represented as file path). `receiver` is the name/id. `receiver=None` means sending to the manager. `channel=None` means sending to the default channel. This API is used for sending messages through internal channels. **DO NOT** send same/similar messages repetitively.
 
 - AI model calling
   - `agent.query_model(params, model_name=None)`: query the foundation model. `query_params` is a list of query parameters (text, image, etc.). `model_name` specifies the preferred model to use in this query. The avaliable models can be found in `Available Models` section. This function returns the model response as a list of text and images.
@@ -977,7 +977,7 @@ If the task does not clearly specify what to do. Try generating a specific task 
 ## System Jobs
 
 - If there is any missing information (marked with "?") in profile, ask the manager to complete them.
-- Analyze pending tasks in memory and complete them if it is an appropriate time.
+- Analyze pending tasks in memory and complete them if it is an appropriate time. The manager-requested tasks have highest priority.
 - Every day before other tasks, summarize yesterday's memory and save important information into long-term memory.
 - Compress the long-term memory or the daily memory if it is too long (e.g. >1000 words).
 
