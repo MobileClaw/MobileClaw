@@ -329,6 +329,9 @@ class AutoAgent:
                     logger.error(err_msg)
                     self._log_and_report(err_msg, actions_and_results, task_tag)
                     continue # NOTE: decide between break or continue
+            
+            if step + 1 >= max_steps:
+                self.agent._log_and_report(f'Task stopped due to step limit: {max_steps}. . You may need to start a new task to complete the remaining work.', actions_and_results, task_tag=task_tag)
 
             # Get results before concluding
             results = agent_api._results

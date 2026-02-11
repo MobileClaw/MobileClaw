@@ -10,6 +10,20 @@ Features:
 - Memory organized as .md files.
 - Communication with users via daily messaging apps.
 
+Screenshots:
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="_res/example_conversation.png" width="400"></td>
+    <td align="center"><img src="_res/example_logging.png" width="400"></td>
+  </tr>
+  <tr>
+    <td align="center">Example Conversation</td>
+    <td align="center">Example Logging</td>
+  </tr>
+</table>
+
+
 ## How to Install
 
 1. Clone this project.

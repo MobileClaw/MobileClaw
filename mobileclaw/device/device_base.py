@@ -174,6 +174,8 @@ class DeviceControllerBase(UniInterface):
 
             # Sleep between steps
             self.agent.sleep(0.5)
+        if step + 1 > max_steps:
+            self.agent._log_and_report(f'Task stopped due to step limit: {max_steps}. You may need to start a new task to complete the remaining work.', actions_and_results, task_tag=task_tag)
         self.agent._conclude_task(f'(With device {self.device_name}) {task}', actions_and_results=actions_and_results)
         return results
 

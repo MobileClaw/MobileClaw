@@ -687,7 +687,7 @@ Please provide your answer in the exact JSON format shown above."""
 
         if device_type == 'computer':
             return """### Computer Device Actions:
-- `device.click(x, y)`: Click at coordinates (x, y)
+- `device.click(x, y)`: Click at coordinates (x, y), e.g. `device.click(200, 350)`
 - `device.double_click(x, y)`: Double-click at coordinates (x, y)
 - `device.right_click(x, y)`: Right-click at coordinates (x, y)
 - `device.view_set_text(content)`: Type text content
@@ -702,7 +702,7 @@ Please provide your answer in the exact JSON format shown above."""
 
         elif device_type == 'phone':
             return """### Phone Device Actions:
-- `device.click(x, y)`: Tap at coordinates (x, y)
+- `device.click(x, y)`: Tap at coordinates (x, y), e.g. `device.click(200, 350)`
 - `device.long_click(x, y)`: Long press at coordinates (x, y)
 - `device.view_set_text(content)`: Type text content
 - `device.enter()`: Press Enter key
@@ -715,7 +715,7 @@ Please provide your answer in the exact JSON format shown above."""
 
         elif device_type == 'browser':
             return """### Browser Device Actions:
-- `device.click(x, y)`: Click at coordinates (x, y)
+- `device.click(x, y)`: Click at coordinates (x, y), e.g. `device.click(200, 350)`
 - `device.long_touch(x, y)`: Long press at coordinates (x, y)
 - `device.view_set_text(content)`: Type text content
 - `device.enter()`: Press Enter key
@@ -925,8 +925,9 @@ Note:
 ## IMPORTANT: You are operating in "Conclude Task" mode. The purpose of this mode is to save useful information from the completed task by:
 1. Review the task execution history and results.
 2. Extract key information, learnings, and outcomes.
-3. Update relevant knowledge files (e.g., procedures, facts, contacts) and today's daily memory file if worth and haven't done so.
-4. Send task results to the manager if worth and haven't done so. DO NOT send same message repetitively.
+3. Update relevant knowledge files (e.g., procedures, facts, contacts) and today's daily memory file if worth and if you haven't done so.
+4. Send task results to the manager if worth and you haven't done so.
+5. Note: DO NOT save the same memory or send the same message repetitively.
 """
 
         # Build API documentation based on mode
@@ -977,7 +978,7 @@ If the task does not clearly specify what to do. Try generating a specific task 
 ## System Jobs
 
 - If there is any missing information (marked with "?") in profile, ask the manager to complete them.
-- Analyze pending tasks in memory and complete them if it is an appropriate time. The manager-requested tasks have highest priority.
+- Analyze pending tasks in memory and complete them if it is an appropriate time. The unfinished pending tasks have the highest priority.
 - Every day before other tasks, summarize yesterday's memory and save important information into long-term memory.
 - Compress the long-term memory or the daily memory if it is too long (e.g. >1000 words).
 
