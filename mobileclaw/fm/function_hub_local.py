@@ -916,8 +916,8 @@ Note:
 ## IMPORTANT: You are in "Handle Message" Mode. The purpose of this mode is to handle incoming messages by:
 1. Reading relevant memory and knowledge files to understand context
 2. Updating memory and profile files with new conversation information.
-3. This mode is not supposed for lengthy tasks with do_with_device or execute_task. If there is anything remaining to do with device, add it to the daily memory with "[PENDING]" prefix.
-4. Generating appropriate responses and sending them using agent.send_message()
+3. This mode is not supposed for lengthy tasks using `do_with_device` or `execute_task`. If there is anything remaining to do with device, add it to the daily memory with "[PENDING]" prefix. The sender/channel information should be recorded for reporting progress/results when completing the pending task.
+4. Generating appropriate responses and sending them using `agent.send_message` API. Make sure your response's `receiver` param exactly equals to the message's `sender`, using the same channel (zulip, lark, telegram, etc.).
 
 """
         elif mode == 'conclude_task':
@@ -927,14 +927,14 @@ Note:
 2. Extract key information, learnings, and outcomes.
 3. Update relevant knowledge files (e.g., procedures, facts, contacts) and today's daily memory file if worth and if you haven't done so.
 4. Send task results to the manager if worth and you haven't done so.
-5. Note: DO NOT save the same memory or send the same message repetitively.
+5. Note: DO NOT repetitively save the same memory or send the same message.
 """
 
         # Build API documentation based on mode
         # Exclude device and task decomposition APIs in handle_message and conclude_task modes
         api_docs = """
 - Messaging
-  - `agent.send_message(message, receiver=None, channel=None)`: send a message to the `receiver` via `channel`. `message` can be a string, an image/file (represented as file path). `receiver` is the name/id. `receiver=None` means sending to the manager. `channel=None` means sending to the default channel. This API is used for sending messages through internal channels. **DO NOT** send same/similar messages repetitively.
+  - `agent.send_message(message, receiver=None, channel=None)`: send a message to the `receiver` via `channel`. `message` can be a string, an image/file (represented as file path). `receiver` is the name/id. `receiver=None, channel=None` means sending to the manager. This API is used for sending messages through internal channels.
 
 - AI model calling
   - `agent.query_model(params, model_name=None)`: query the foundation model. `query_params` is a list of query parameters (text, image, etc.). `model_name` specifies the preferred model to use in this query. The avaliable models can be found in `Available Models` section. This function returns the model response as a list of text and images.
@@ -978,7 +978,7 @@ If the task does not clearly specify what to do. Try generating a specific task 
 ## System Jobs
 
 - If there is any missing information (marked with "?") in profile, ask the manager to complete them.
-- Analyze pending tasks in memory and complete them if it is an appropriate time. The unfinished pending tasks have the highest priority.
+- Analyze pending tasks in memory and complete them if it is an appropriate time. The user-requested pending tasks have higher priority than routine system/profile jobs.
 - Every day before other tasks, summarize yesterday's memory and save important information into long-term memory.
 - Compress the long-term memory or the daily memory if it is too long (e.g. >1000 words).
 

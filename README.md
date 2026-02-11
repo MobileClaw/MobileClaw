@@ -1,27 +1,23 @@
 # MobileClaw
 
-MobileClaw is a **Fully Autonomous Mobile Agent**.
+<div align="center">
+  <img src="_res/brand.png" alt="nanobot" width="600">
+</div>
 
-Our mission is to create low-barrier openclaw-style agents for everyone in daily use, not just for programmers!
+**MobileClaw** is a **Fully Autonomous Mobile Agent**.
 
-Features:
+MobileClaw's mission is to enable openclaw-style agents on mobile devices (e.g. your secondary phone).
+
+MobileClaw execute tasks mostly through GUI like human, which means better usability for everyone in daily use, not just for programmers!
+
+**Features**:
 - Natively built for mobile devices (e.g. Android).
 - Human-like interaction with apps via vision/GUI.
+- Lightweight. Minimal third-party service integration.
 - Memory organized as .md files.
 - Communication with users via daily messaging apps.
 
-Screenshots:
-
-<table align="center">
-  <tr>
-    <td align="center"><img src="_res/example_conversation.png" width="400"></td>
-    <td align="center"><img src="_res/example_logging.png" width="400"></td>
-  </tr>
-  <tr>
-    <td align="center">Example Conversation</td>
-    <td align="center">Example Logging</td>
-  </tr>
-</table>
+<video src="_res/mobileclaw_demo_5x.mp4" width="100%" controls></video>
 
 
 ## How to Install
@@ -33,9 +29,24 @@ Screenshots:
 
 1. Connect your Android device via ADB.
 2. Copy `config.yaml.example` to `config.yaml` and fill in information.
-   1. See [Chat App Configuration](#chat-app-configuration) for how to connect chat apps.
+   1. See [Model Configuration](#model-configuration) for how to config model providers.
+   2. See [Chat App Configuration](#chat-app-configuration) for how to connect chat apps.
 3. Start your agent with `mobileclaw config.yaml`.
 4. Send message to the agent or modify its `profile.md` to customize.
+
+## Model Configuration
+
+MobileClaw requires two models to work. One for general task control (planning, memory management, etc.). Another for computer use (GUI grounding, app-related task automation, etc.).
+
+Each model requires three values for configuration, including `url`, `key` and `name`. They should support OpenAI-compatible APIs.
+
+For example, the following lines in `config.yaml` set the foundation model to `gpt-5.2-chat`.
+
+```yaml
+custom_fm_url: "https://api.openai.com/v1/chat/completions"
+custom_fm_key: "sk-xxx"
+custom_fm_name: "gpt-5.2-chat"
+```
 
 ## Chat App Configuration
 
@@ -122,4 +133,10 @@ chat_zulip_org_manager: manager@example.com  # Org manager's zulip email. Defaul
 </details>
 
 We recommend `zulip` or `Lark/Feishu` since they support rich group features.
+
+## Acknowledgments
+
+- [openclaw](https://github.com/openclaw/openclaw) for the inspiration.
+- [nanobot](https://github.com/HKUDS/nanobot) for chat channel integration.
+- [zulip](https://mobilellm.zulip.com/) and [Feishu](https://www.feishu.cn/) for sponsored team account.
 

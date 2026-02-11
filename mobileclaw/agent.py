@@ -41,6 +41,7 @@ class AutoAgent:
         self._handling_message = False
         self._message_pause_event = threading.Event()
         self._message_pause_event.set()  # Initially not paused
+        self._wake_event = threading.Event()  # For interrupting adaptive sleep
 
         self.start()
 
@@ -68,7 +69,7 @@ class AutoAgent:
         Start agent serving.
         """
         while self._enabled:
-            self.execute_task('Continue doing my job.')
+            self.execute_task('Complete pending tasks or do your routine work.')
             self._adaptive_sleep()
 
     def _log_and_report(self, content, actions_and_results, task_tag="📋"):
@@ -260,6 +261,7 @@ class AutoAgent:
 
             # Track if task is idle (finished in step 0 with only task_status set)
             finished_step = -1
+            task_status = 'ongoing'
 
             for step in range(max_steps):
                 # Pause normal tasks if a message is being handled
@@ -309,7 +311,7 @@ class AutoAgent:
                     exec_globals = {
                         'agent': agent_api,
                         'vars': current_vars,
-                        'task_status': 'ongoing'
+                        'task_status': task_status
                     }
                     exec(code, exec_globals)
 
@@ -318,7 +320,7 @@ class AutoAgent:
                         if key not in ['agent', 'task_status', '__builtins__', 'vars']:
                             current_vars[key] = value
 
-                    task_status = exec_globals.get('task_status', 'ongoing')
+                    task_status = exec_globals.get('task_status', task_status)
                     if task_status != 'ongoing':
                         if task_status == 'finished':
                             finished_step = step
@@ -330,8 +332,8 @@ class AutoAgent:
                     self._log_and_report(err_msg, actions_and_results, task_tag)
                     continue # NOTE: decide between break or continue
             
-            if step + 1 >= max_steps:
-                self.agent._log_and_report(f'Task stopped due to step limit: {max_steps}. . You may need to start a new task to complete the remaining work.', actions_and_results, task_tag=task_tag)
+            if step + 1 >= max_steps and task_status != 'finished':
+                self.agent._log_and_report(f'[WARNING] Task stopped due to step limit: {max_steps}. You may need to start a new task to complete the remaining work.', actions_and_results, task_tag=task_tag)
 
             # Get results before concluding
             results = agent_api._results
@@ -376,6 +378,7 @@ class AutoAgent:
             try:
                 # Pause normal tasks while handling message
                 self._message_pause_event.clear()
+                self._wake_event.set()  # Wake up from adaptive sleep immediately
                 self._handling_message = True
 
                 message_content = str(message)
@@ -389,7 +392,7 @@ class AutoAgent:
                 task_context = ""
                 if current_task:
                     task_context = f"""
-## Current Ongoing Task Context
+- Current Ongoing Task Context
 The agent is currently working on the following task:
 Task: {current_task}
 
@@ -399,8 +402,9 @@ Task: {current_task}
                 history_formatted = f"```\n{history_content}\n```" if history_content else '(No previous messages)'
 
                 # Create task description that includes the message and history
-                task_description = f"""Handle the following message from `{sender}`:
+                task_description = f"""Handle the following message:
 - Message: `{message_content}`
+- Sender: `{sender}`
 - Channel: `{channel}`
 - Recent conversation:
 {history_formatted}
@@ -443,8 +447,9 @@ Task: {current_task}
         self._sleep(seconds)
 
     def _sleep(self, seconds: float):
-        """Let the agent sleep for several seconds."""
-        time.sleep(seconds)
+        """Let the agent sleep for several seconds, but can be interrupted."""
+        self._wake_event.clear()
+        self._wake_event.wait(timeout=seconds)
 
     def _initialize_working_dir(self):
         """Initialize the working directory structure based on the template."""

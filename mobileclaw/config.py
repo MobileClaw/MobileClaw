@@ -30,7 +30,7 @@ class AgentConfig:
     org_name: str = field(default='MyTeam', metadata={"help": "Name of the organization."})
     role: str = field(default='normal', metadata={"help": "Role of the agent member (normal or manager)."})
     mode: str = field(default='development', metadata={"help": "Mode of operation."})
-    task_language: str = field(default='zh', metadata={"help": "Language for task."})
+    task_language: str = field(default='en', metadata={"help": "Language for task."})
 
     max_steps: int = field(default=-1, metadata={"help": "Max number of agent steps."})
 
@@ -39,21 +39,21 @@ class AgentConfig:
     phone_port_mappings: Dict[str, int] = field(default_factory=dict, metadata={"help": "Mapping of phone device names to port numbers, e.g. {'phone1': 51825, 'phone2': 51826}."})
     prefer_phone_action_type: str = field(default='websocket', metadata={"help": "Prefer phone input type."})
 
-    use_ruyix_service: bool = field(default=True, metadata={"help": "Whether to use RuyiX"})
+    use_ruyix_service: bool = field(default=False, metadata={"help": "Whether to use RuyiX"})
     ruyix_fm_name: str = field(default='ruyifm', metadata={"help": "Model name of the foundation model."})
     ruyix_gui_vlm_name: str = field(default='ruyigui', metadata={"help": "Model name of the GUI VLM."})
     ruyix_url: Optional[str] = field(default=None, metadata={"help": "API URL for RuyiX."})
     ruyix_key: Optional[str] = field(default=None, metadata={"help": "API key for RuyiX."})
 
-    use_custom_fm: bool = field(default=False, metadata={"help": "Whether to use Custom Foundation Model."})
-    custom_fm_url: Optional[str] = field(default=None, metadata={"help": "API URL for OpenAI."})
-    custom_fm_key: Optional[str] = field(default=None, metadata={"help": "API key for OpenAI."})
-    custom_fm_name: str = field(default='gpt-4o-2024-08-06', metadata={"help": "Default VLM."})
+    use_custom_fm: bool = field(default=True, metadata={"help": "Whether to use Custom Foundation Model."})
+    custom_fm_url: Optional[str] = field(default=None, metadata={"help": "API URL for Custom Foundation Model."})
+    custom_fm_key: Optional[str] = field(default=None, metadata={"help": "API key for Custom Foundation Model."})
+    custom_fm_name: str = field(default=None, metadata={"help": "Default VLM name."})
 
-    use_custom_gui_vlm: bool = field(default=False, metadata={"help": "Whether to use Custom UI Model."})
-    custom_gui_vlm_url: Optional[str] = field(default=None, metadata={"help": "API URL for Custom UI Model."})
-    custom_gui_vlm_key: Optional[str] = field(default=None, metadata={"help": "API key for Custom UI Model."})
-    custom_gui_vlm_name: Optional[str] = field(default=None, metadata={"help": "Model name for Custom UI Model."})
+    use_custom_gui_vlm: bool = field(default=True, metadata={"help": "Whether to use Custom GUI Model."})
+    custom_gui_vlm_url: Optional[str] = field(default=None, metadata={"help": "API URL for Custom GUI Model."})
+    custom_gui_vlm_key: Optional[str] = field(default=None, metadata={"help": "API key for Custom GUI Model."})
+    custom_gui_vlm_name: Optional[str] = field(default=None, metadata={"help": "Model name for Custom GUI Model."})
 
     log_level: Optional[int] = field(default=logging.DEBUG, metadata={"help": "Logging level"})
 

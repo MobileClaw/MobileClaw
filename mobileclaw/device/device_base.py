@@ -43,7 +43,7 @@ class DeviceControllerBase(UniInterface):
     def __str__(self) -> str:
         return f"Device Interface: {self.device_name}"
 
-    def execute_task(self, task: str, knowledge='', max_steps: int = 20, keep_recent_images: int = 3):
+    def execute_task(self, task: str, knowledge='', max_steps: int = 15, keep_recent_images: int = 3):
         """
         Execute a device control task using iterative LLM-generated Python code.
 
@@ -174,8 +174,8 @@ class DeviceControllerBase(UniInterface):
 
             # Sleep between steps
             self.agent.sleep(0.5)
-        if step + 1 > max_steps:
-            self.agent._log_and_report(f'Task stopped due to step limit: {max_steps}. You may need to start a new task to complete the remaining work.', actions_and_results, task_tag=task_tag)
+        if step + 1 >= max_steps and task_status == 'ongoing':
+            self.agent._log_and_report(f'[WARNING] Task stopped due to step limit: {max_steps}. You may need to start a new task to complete the remaining work.', actions_and_results, task_tag=task_tag)
         self.agent._conclude_task(f'(With device {self.device_name}) {task}', actions_and_results=actions_and_results)
         return results
 
