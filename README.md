@@ -1,14 +1,18 @@
 # MobileClaw
 
 <div align="center">
-  <img src="_res/brand.png" alt="nanobot" width="600">
+  <img src="_res/brand.png" alt="mobileclaw" width="600">
+</div>
+
+<div align="center">
+  <img src="_res/mobileclaw_demo_5x.gif" alt="mobileclaw_demo" width="100%">
 </div>
 
 **MobileClaw** is a **Fully Autonomous Mobile Agent**.
 
 MobileClaw's mission is to enable openclaw-style agents on mobile devices (e.g. your secondary phone).
 
-MobileClaw execute tasks mostly through GUI like human, which means better usability for everyone in daily use, not just for programmers!
+MobileClaw executes tasks mostly through GUI like human, which means better usability for everyone in daily use, not just for programmers!
 
 **Features**:
 - Natively built for mobile devices (e.g. Android).
@@ -16,9 +20,6 @@ MobileClaw execute tasks mostly through GUI like human, which means better usabi
 - Lightweight. Minimal third-party service integration.
 - Memory organized as .md files.
 - Communication with users via daily messaging apps.
-
-<video src="_res/mobileclaw_demo_5x.mp4" width="100%" controls></video>
-
 
 ## How to Install
 
@@ -32,7 +33,7 @@ MobileClaw execute tasks mostly through GUI like human, which means better usabi
    1. See [Model Configuration](#model-configuration) for how to config model providers.
    2. See [Chat App Configuration](#chat-app-configuration) for how to connect chat apps.
 3. Start your agent with `mobileclaw config.yaml`.
-4. Send message to the agent or modify its `profile.md` to customize.
+4. Send messages to the agent or modify its `profile.md` to customize.
 
 ## Model Configuration
 
@@ -136,7 +137,8 @@ We recommend `zulip` or `Lark/Feishu` since they support rich group features.
 
 ## Acknowledgments
 
+- [THU-AIR](https://air.tsinghua.edu.cn/en/) team members.
 - [openclaw](https://github.com/openclaw/openclaw) for the inspiration.
-- [nanobot](https://github.com/HKUDS/nanobot) for chat channel integration.
+- [nanobot](https://github.com/HKUDS/nanobot) for sample code of chat channel integration.
 - [zulip](https://mobilellm.zulip.com/) and [Feishu](https://www.feishu.cn/) for sponsored team account.
 
