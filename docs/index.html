@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MobileClaw - Fully Autonomous Mobile Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #050505;
+      --bg-card: rgba(255,255,255,.03);
+      --bg-card-hover: rgba(255,255,255,.055);
+      --border: rgba(255,255,255,.08);
+      --border-hover: rgba(255,255,255,.15);
+      --text: #ededef;
+      --text-2: #8a8a8e;
+      --text-3: #555;
+      --accent: #7c6aff;
+      --accent-2: #50e3c2;
+      --cyan: #38bdf8;
+      --max-w: 1120px;
+      --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+      --mono: "SF Mono", "Fira Code", "Consolas", monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: var(--cyan); text-decoration: none; transition: color .2s; }
+    a:hover { color: #7dd3fc; }
+    img { max-width: 100%; display: block; }
+
+    /* ── i18n ── */
+    .i-en, .i-zh { display: none; }
+    body.en .i-en { display: revert; }
+    body.zh .i-zh { display: revert; }
+
+    /* ── layout ── */
+    .wrap { max-width: var(--max-w); margin: 0 auto; padding: 0 32px; }
+    .sec { padding: 120px 0; position: relative; }
+
+    .sec-label {
+      font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 16px;
+    }
+    .sec-title {
+      font-size: clamp(28px, 4vw, 40px); font-weight: 800; line-height: 1.2;
+      letter-spacing: -.02em; margin-bottom: 16px;
+    }
+    .sec-desc { font-size: 17px; color: var(--text-2); max-width: 560px; }
+    .sec-head { margin-bottom: 64px; }
+
+    .sep {
+      height: 1px; border: none;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+
+    /* ── nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+      background: rgba(5,5,5,.7);
+      backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-in {
+      max-width: var(--max-w); margin: 0 auto; padding: 0 32px;
+      height: 56px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { font-size: 17px; font-weight: 800; color: var(--text); letter-spacing: -.01em; }
+    .nav-r { display: flex; gap: 4px; align-items: center; }
+    .nav-r a {
+      font-size: 13px; font-weight: 500; color: var(--text-2); padding: 6px 12px;
+      border-radius: 8px; transition: all .15s;
+    }
+    .nav-r a:hover { color: var(--text); background: rgba(255,255,255,.06); }
+    .lang-sw {
+      margin-left: 8px; font-size: 12px; font-weight: 700; cursor: pointer; user-select: none;
+      color: var(--accent); background: rgba(124,106,255,.1); border: 1px solid rgba(124,106,255,.2);
+      padding: 4px 12px; border-radius: 6px; transition: all .15s;
+    }
+    .lang-sw:hover { background: rgba(124,106,255,.18); }
+
+    /* ── hero ── */
+    .hero {
+      padding: 180px 0 100px; text-align: center; position: relative; overflow: hidden;
+    }
+    /* ambient glow */
+    .hero::before {
+      content: ""; position: absolute; top: -120px; left: 50%; transform: translateX(-50%);
+      width: 900px; height: 520px; border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(124,106,255,.12) 0%, rgba(56,189,248,.06) 40%, transparent 70%);
+      pointer-events: none; filter: blur(10px);
+    }
+    .hero-logo { max-width: 380px; margin: 0 auto 36px; position: relative; }
+    .hero-sub {
+      font-size: clamp(16px, 2.2vw, 19px); color: var(--text-2);
+      max-width: 580px; margin: 0 auto 44px; line-height: 1.7;
+    }
+    .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 24px; border-radius: 10px; font-size: 14px; font-weight: 600;
+      transition: all .2s; cursor: pointer; border: none; letter-spacing: -.01em;
+    }
+    .btn-p { background: var(--accent); color: #fff; }
+    .btn-p:hover { background: #6b58ed; color: #fff; box-shadow: 0 0 24px rgba(124,106,255,.35); transform: translateY(-1px); }
+    .btn-g {
+      background: rgba(255,255,255,.06); color: var(--text); border: 1px solid var(--border);
+    }
+    .btn-g:hover { background: rgba(255,255,255,.10); border-color: var(--border-hover); transform: translateY(-1px); }
+
+    .hero-preview {
+      margin: 72px auto 0; max-width: 960px; border-radius: 16px; overflow: hidden;
+      border: 1px solid var(--border); position: relative;
+      box-shadow: 0 0 80px rgba(124,106,255,.06), 0 0 2px rgba(255,255,255,.05);
+    }
+    .hero-preview img { display: block; width: 100%; }
+
+    /* notice */
+    .notice {
+      margin: 56px auto 0; max-width: 580px; text-align: left;
+      background: rgba(250,204,21,.04); border: 1px solid rgba(250,204,21,.12);
+      border-radius: 12px; padding: 18px 22px; display: flex; gap: 14px; align-items: flex-start;
+    }
+    .notice-ico { flex-shrink: 0; margin-top: 2px; }
+    .notice-ico svg { width: 18px; height: 18px; color: #facc15; }
+    .notice p { font-size: 13px; color: var(--text-2); line-height: 1.65; }
+    .notice strong { color: #facc15; font-weight: 600; }
+
+    /* ── features ── */
+    .feat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border-radius: 16px; overflow: hidden; }
+    .feat {
+      background: var(--bg); padding: 40px 32px; position: relative; transition: background .3s;
+    }
+    .feat:hover { background: var(--bg-card-hover); }
+    .feat-ico {
+      width: 40px; height: 40px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center;
+      border-radius: 10px; position: relative;
+    }
+    .feat-ico svg { width: 22px; height: 22px; position: relative; z-index: 1; }
+    /* per-card accent colors */
+    .feat:nth-child(1) .feat-ico { background: rgba(124,106,255,.12); color: #a594ff; }
+    .feat:nth-child(2) .feat-ico { background: rgba(56,189,248,.1); color: #67d4f8; }
+    .feat:nth-child(3) .feat-ico { background: rgba(80,227,194,.1); color: #50e3c2; }
+    .feat:nth-child(4) .feat-ico { background: rgba(251,191,36,.1); color: #fbbf24; }
+    .feat:nth-child(5) .feat-ico { background: rgba(244,114,182,.1); color: #f472b6; }
+    .feat:nth-child(6) .feat-ico { background: rgba(168,85,247,.1); color: #a855f7; }
+
+    .feat h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; letter-spacing: -.01em; }
+    .feat p { font-size: 14px; color: var(--text-2); line-height: 1.6; }
+
+    /* ── get started ── */
+    .gs-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
+    .gs-col { min-width: 0; }
+    .gs-col h3 { font-size: 18px; font-weight: 700; margin-bottom: 28px; letter-spacing: -.01em; }
+    .st-list { display: flex; flex-direction: column; gap: 0; position: relative; }
+    .st-list::before {
+      content: ""; position: absolute; left: 15px; top: 20px; bottom: 20px;
+      width: 1px; background: linear-gradient(180deg, var(--border), rgba(124,106,255,.3), var(--border));
+    }
+    .st {
+      display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; position: relative;
+    }
+    .st-dot {
+      flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%;
+      background: var(--bg); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: var(--text-2); z-index: 1;
+      transition: all .3s;
+    }
+    .st:hover .st-dot { border-color: var(--accent); color: var(--accent); background: rgba(124,106,255,.08); }
+    .st-body { min-width: 0; flex: 1; }
+    .st-body h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .st-body p { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+
+    code {
+      font-family: var(--mono); font-size: 12.5px;
+      background: rgba(124,106,255,.08); color: var(--cyan);
+      padding: 2px 6px; border-radius: 4px;
+    }
+    pre {
+      background: rgba(255,255,255,.03); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px 18px; overflow-x: auto; margin-top: 10px;
+      max-width: 100%;
+    }
+    pre code {
+      background: none; padding: 0; color: var(--text-2); font-size: 12.5px; line-height: 1.65;
+      word-break: break-all; white-space: pre-wrap;
+    }
+
+    /* ── model config ── */
+    .cfg-wrap {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start;
+    }
+    .cfg-info p { font-size: 15px; color: var(--text-2); line-height: 1.7; margin-bottom: 24px; }
+    .tag-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tag {
+      font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 8px;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .tag svg { width: 14px; height: 14px; }
+    .tag-fm { background: rgba(124,106,255,.1); color: #a594ff; border: 1px solid rgba(124,106,255,.2); }
+    .tag-vlm { background: rgba(56,189,248,.08); color: #67d4f8; border: 1px solid rgba(56,189,248,.15); }
+    .cfg-code { align-self: center; }
+
+    /* ── chat platforms ── */
+    .plat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .plat {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 32px 20px; text-align: center; transition: all .25s; position: relative; overflow: hidden;
+    }
+    .plat:hover { border-color: var(--border-hover); background: var(--bg-card-hover); transform: translateY(-2px); }
+    .plat-ico {
+      width: 48px; height: 48px; margin: 0 auto 18px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .plat-ico svg { width: 24px; height: 24px; }
+    .plat:nth-child(1) .plat-ico { background: rgba(56,189,248,.1); color: #38bdf8; }
+    .plat:nth-child(2) .plat-ico { background: rgba(80,227,194,.1); color: #50e3c2; }
+    .plat:nth-child(3) .plat-ico { background: rgba(124,106,255,.1); color: #a594ff; }
+    .plat:nth-child(4) .plat-ico { background: rgba(251,191,36,.1); color: #fbbf24; }
+    .plat h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+    .plat p { font-size: 13px; color: var(--text-3); line-height: 1.5; }
+    .plat-rec {
+      display: inline-block; margin-top: 14px; font-size: 11px; font-weight: 700; letter-spacing: .5px;
+      color: var(--accent-2); background: rgba(80,227,194,.08); border: 1px solid rgba(80,227,194,.15);
+      padding: 3px 10px; border-radius: 6px; text-transform: uppercase;
+    }
+
+    /* ── ack ── */
+    .ack-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+    }
+    .ack-item {
+      display: flex; align-items: center; gap: 14px; padding: 18px 22px;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+      transition: border-color .25s;
+    }
+    .ack-item:hover { border-color: var(--border-hover); }
+    .ack-dot {
+      flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); opacity: .6;
+    }
+    .ack-item span { font-size: 14px; color: var(--text-2); }
+
+    /* ── animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(32px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+    @keyframes borderGlow {
+      0%   { opacity: .3; }
+      50%  { opacity: .7; }
+      100% { opacity: .3; }
+    }
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    @keyframes pulseRing {
+      0%   { box-shadow: 0 0 0 0 rgba(124,106,255,.25); }
+      70%  { box-shadow: 0 0 0 6px rgba(124,106,255,0); }
+      100% { box-shadow: 0 0 0 0 rgba(124,106,255,0); }
+    }
+
+    /* scroll reveal */
+    .reveal {
+      opacity: 0; transform: translateY(32px);
+      transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+    }
+    .reveal.visible {
+      opacity: 1; transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: .1s; }
+    .reveal-delay-2 { transition-delay: .2s; }
+    .reveal-delay-3 { transition-delay: .3s; }
+
+    /* hero entrance */
+    .hero-logo  { animation: fadeUp .8s cubic-bezier(.16,1,.3,1) both; }
+    .hero-sub   { animation: fadeUp .8s cubic-bezier(.16,1,.3,1) .15s both; }
+    .hero-btns  { animation: fadeUp .8s cubic-bezier(.16,1,.3,1) .25s both; }
+    .hero-preview { animation: fadeUp 1s cubic-bezier(.16,1,.3,1) .4s both; }
+    .notice     { animation: fadeIn .8s cubic-bezier(.16,1,.3,1) .6s both; }
+
+    /* gradient section titles */
+    .sec-title {
+      background: linear-gradient(135deg, var(--text) 40%, var(--accent) 100%);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* hero preview glow border */
+    .hero-preview {
+      position: relative;
+    }
+    .hero-preview::before {
+      content: ""; position: absolute; inset: -1px; border-radius: 17px; z-index: -1;
+      background: conic-gradient(from 0deg, transparent 60%, rgba(124,106,255,.5) 75%, rgba(56,189,248,.4) 85%, transparent 95%);
+      animation: spin 6s linear infinite;
+      opacity: .5;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .hero-preview::after {
+      content: ""; position: absolute; inset: 0; border-radius: 16px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+      pointer-events: none;
+    }
+
+    /* feature cards — hover top-glow */
+    .feat {
+      transition: background .3s, box-shadow .4s;
+    }
+    .feat:hover {
+      background: var(--bg-card-hover);
+    }
+    .feat:nth-child(1):hover { box-shadow: inset 0 1px 40px rgba(124,106,255,.06); }
+    .feat:nth-child(2):hover { box-shadow: inset 0 1px 40px rgba(56,189,248,.06); }
+    .feat:nth-child(3):hover { box-shadow: inset 0 1px 40px rgba(80,227,194,.06); }
+    .feat:nth-child(4):hover { box-shadow: inset 0 1px 40px rgba(251,191,36,.06); }
+    .feat:nth-child(5):hover { box-shadow: inset 0 1px 40px rgba(244,114,182,.06); }
+    .feat:nth-child(6):hover { box-shadow: inset 0 1px 40px rgba(168,85,247,.06); }
+
+    .feat-ico {
+      transition: transform .3s cubic-bezier(.16,1,.3,1), box-shadow .3s;
+    }
+    .feat:hover .feat-ico {
+      transform: scale(1.1);
+    }
+
+    /* step dots — hover pulse */
+    .st:hover .st-dot {
+      animation: pulseRing 1.2s ease-out;
+    }
+
+    /* platform cards — top accent line on hover */
+    .plat::before {
+      content: ""; position: absolute; top: 0; left: 20%; right: 20%; height: 2px;
+      border-radius: 0 0 2px 2px;
+      opacity: 0; transition: opacity .3s, left .3s, right .3s;
+    }
+    .plat:nth-child(1)::before { background: linear-gradient(90deg, transparent, #38bdf8, transparent); }
+    .plat:nth-child(2)::before { background: linear-gradient(90deg, transparent, #50e3c2, transparent); }
+    .plat:nth-child(3)::before { background: linear-gradient(90deg, transparent, #a594ff, transparent); }
+    .plat:nth-child(4)::before { background: linear-gradient(90deg, transparent, #fbbf24, transparent); }
+    .plat:hover::before { opacity: 1; left: 10%; right: 10%; }
+
+    .plat:hover .plat-ico {
+      transform: translateY(-3px);
+      transition: transform .3s cubic-bezier(.16,1,.3,1);
+    }
+    .plat-ico { transition: transform .3s; }
+
+    /* ack items — subtle hover lift */
+    .ack-item {
+      transition: border-color .25s, transform .25s, background .25s;
+    }
+    .ack-item:hover {
+      border-color: var(--border-hover);
+      transform: translateX(4px);
+      background: rgba(255,255,255,.02);
+    }
+    .ack-dot { transition: transform .3s, opacity .3s; }
+    .ack-item:hover .ack-dot { transform: scale(1.5); opacity: 1; }
+
+    /* code blocks — subtle accent bar */
+    pre {
+      position: relative;
+    }
+    pre::before {
+      content: ""; position: absolute; top: 0; left: 16px; right: 16px; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(124,106,255,.25), transparent);
+    }
+
+    /* button arrow slide */
+    .btn-g svg {
+      transition: transform .2s;
+    }
+    .btn-g:hover svg {
+      transform: translateX(3px);
+    }
+
+    /* nav — active link indicator */
+    .nav-r a {
+      position: relative;
+    }
+    .nav-r a::after {
+      content: ""; position: absolute; bottom: 1px; left: 50%; right: 50%;
+      height: 1px; background: var(--accent); border-radius: 1px;
+      transition: left .25s cubic-bezier(.16,1,.3,1), right .25s cubic-bezier(.16,1,.3,1);
+    }
+    .nav-r a:hover::after { left: 20%; right: 20%; }
+
+    /* lang button — subtle glow */
+    .lang-sw {
+      transition: all .2s, box-shadow .3s;
+    }
+    .lang-sw:hover {
+      background: rgba(124,106,255,.18);
+      box-shadow: 0 0 16px rgba(124,106,255,.15);
+    }
+
+    /* section label shimmer */
+    .sec-label {
+      background: linear-gradient(90deg, var(--accent) 0%, #38bdf8 50%, var(--accent) 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 4s linear infinite;
+    }
+
+    /* notice — subtle border pulse */
+    .notice {
+      transition: border-color .3s;
+    }
+    .notice:hover {
+      border-color: rgba(250,204,21,.25);
+    }
+
+    /* smooth separator fade */
+    .sep {
+      transition: opacity .3s;
+    }
+
+    /* ── footer ── */
+    footer {
+      border-top: 1px solid var(--border); padding: 40px 0; text-align: center;
+    }
+    footer p { font-size: 13px; color: var(--text-3); letter-spacing: .01em; }
+
+    /* ── responsive ── */
+    @media (max-width: 860px) {
+      .feat-grid { grid-template-columns: 1fr; }
+      .gs-cols { grid-template-columns: 1fr; gap: 36px; }
+      .cfg-wrap { grid-template-columns: 1fr; }
+      .plat-grid { grid-template-columns: repeat(2, 1fr); }
+      .ack-grid { grid-template-columns: 1fr; }
+      .nav-r a.hm { display: none; }
+      .hero { padding: 140px 0 60px; }
+      .sec { padding: 80px 0; }
+    }
+  </style>
+</head>
+<body class="en">
+
+<!-- ═══ Nav ═══ -->
+<nav>
+  <div class="nav-in">
+    <div class="nav-logo">MobileClaw</div>
+    <div class="nav-r">
+      <a href="#features" class="hm"><span class="i-en">Features</span><span class="i-zh">特性</span></a>
+      <a href="#start" class="hm"><span class="i-en">Get Started</span><span class="i-zh">快速开始</span></a>
+      <a href="#config" class="hm"><span class="i-en">Config</span><span class="i-zh">配置</span></a>
+      <a href="https://github.com/MobileLLM/MobileClaw" target="_blank">GitHub</a>
+      <div class="lang-sw" id="langToggle" onclick="toggleLang()">中文</div>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ Hero ═══ -->
+<section class="hero">
+  <div class="wrap">
+    <img class="hero-logo" src="../_res/brand.png" alt="MobileClaw">
+
+    <p class="hero-sub">
+      <span class="i-en">Enable openclaw-style agents on mobile devices. Unlike coding agents based on system commands and APIs, MobileClaw executes tasks through GUI like a human &mdash; higher usability and reliability for everyone.</span>
+      <span class="i-zh">在移动设备上实现类似 openclaw 的智能体能力。与基于系统命令和 API 的编程智能体不同，MobileClaw 通过类似人类的 GUI 交互方式执行任务 &mdash; 对所有人具有更高的可用性和可靠性。</span>
+    </p>
+
+    <div class="hero-btns">
+      <a href="https://github.com/MobileLLM/MobileClaw" target="_blank" class="btn btn-p">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        <span class="i-en">View on GitHub</span><span class="i-zh">GitHub 仓库</span>
+      </a>
+      <a href="#start" class="btn btn-g">
+        <span class="i-en">Get Started</span><span class="i-zh">快速开始</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    <div class="hero-preview">
+      <img src="../_res/mobileclaw_demo_5x.gif" alt="MobileClaw Demo" loading="lazy">
+    </div>
+
+    <div class="notice">
+      <div class="notice-ico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <p>
+        <span class="i-en">To avoid security risks, please <strong>DO NOT</strong> use MobileClaw on your main device. Use <strong>separated app accounts</strong> and <strong>DO NOT</strong> spam the Internet.</span>
+        <span class="i-zh">为避免安全风险，请<strong>不要</strong>使用 MobileClaw 控制主力设备。建议使用<strong>独立的应用账号</strong>，且<strong>不要</strong>滥用互联网服务。</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ═══ Features ═══ -->
+<section class="sec" id="features">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-label"><span class="i-en">Features</span><span class="i-zh">核心特性</span></div>
+      <h2 class="sec-title">
+        <span class="i-en">Built for mobile, designed for everyone</span>
+        <span class="i-zh">专为移动设备打造，面向所有人设计</span>
+      </h2>
+    </div>
+
+    <div class="feat-grid reveal reveal-delay-1">
+      <!-- 1 Mobile Native -->
+      <div class="feat">
+        <div class="feat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        </div>
+        <h3><span class="i-en">Mobile Native</span><span class="i-zh">移动设备原生</span></h3>
+        <p><span class="i-en">Natively built for mobile devices such as Android. Control your secondary phone with AI.</span><span class="i-zh">专为 Android 等移动设备原生构建，用 AI 控制你的备用手机。</span></p>
+      </div>
+      <!-- 2 Human-like GUI -->
+      <div class="feat">
+        <div class="feat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <h3><span class="i-en">Human-like GUI Interaction</span><span class="i-zh">类人 GUI 交互</span></h3>
+        <p><span class="i-en">Interact with apps via vision and GUI, just like a real human user would.</span><span class="i-zh">通过视觉和 GUI 与应用交互，如同真实的人类用户一样操作。</span></p>
+      </div>
+      <!-- 3 Lightweight -->
+      <div class="feat">
+        <div class="feat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <h3><span class="i-en">Lightweight Design</span><span class="i-zh">轻量化设计</span></h3>
+        <p><span class="i-en">Minimal third-party service integration. Simple setup, easy to run.</span><span class="i-zh">最小化第三方服务集成，配置简单，运行轻便。</span></p>
+      </div>
+      <!-- 4 Markdown Memory -->
+      <div class="feat">
+        <div class="feat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <h3><span class="i-en">Markdown Memory</span><span class="i-zh">Markdown 记忆</span></h3>
+        <p><span class="i-en">Memory organized as .md files &mdash; readable, editable, and transparent.</span><span class="i-zh">使用 .md 文件组织记忆 &mdash; 可读、可编辑、完全透明。</span></p>
+      </div>
+      <!-- 5 Chat -->
+      <div class="feat">
+        <div class="feat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        </div>
+        <h3><span class="i-en">Chat App Communication</span><span class="i-zh">消息应用沟通</span></h3>
+        <p><span class="i-en">Communicate with agents via daily messaging apps like Telegram, Lark, QQ, and Zulip.</span><span class="i-zh">通过 Telegram、飞书、QQ、Zulip 等日常消息应用与智能体沟通。</span></p>
+      </div>
+      <!-- 6 API -->
+      <div class="feat">
+        <div class="feat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="6" height="10" rx="1"/><rect x="16" y="7" width="6" height="10" rx="1"/><path d="M8 12h8"/></svg>
+        </div>
+        <h3><span class="i-en">OpenAI-Compatible APIs</span><span class="i-zh">OpenAI 兼容 API</span></h3>
+        <p><span class="i-en">Works with any model that supports OpenAI-compatible APIs. Flexible and extensible.</span><span class="i-zh">支持任何兼容 OpenAI API 的模型，灵活且可扩展。</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ═══ Get Started ═══ -->
+<section class="sec" id="start">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-label"><span class="i-en">Get Started</span><span class="i-zh">快速开始</span></div>
+      <h2 class="sec-title">
+        <span class="i-en">Up and running in minutes</span>
+        <span class="i-zh">几分钟内即可启动</span>
+      </h2>
+    </div>
+
+    <div class="gs-cols reveal reveal-delay-1">
+      <!-- Install -->
+      <div class="gs-col">
+        <h3><span class="i-en">Install</span><span class="i-zh">安装</span></h3>
+        <div class="st-list">
+          <div class="st">
+            <div class="st-dot">1</div>
+            <div class="st-body">
+              <h4><span class="i-en">Clone &amp; install</span><span class="i-zh">克隆并安装</span></h4>
+              <pre><code>git clone https://github.com/MobileLLM/MobileClaw.git
+cd MobileClaw && pip install -e .</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Android Setup -->
+      <div class="gs-col">
+        <h3><span class="i-en">Android Setup</span><span class="i-zh">设备设置</span></h3>
+        <div class="st-list">
+          <div class="st">
+            <div class="st-dot">1</div>
+            <div class="st-body">
+              <h4><span class="i-en">Connect &amp; install APK</span><span class="i-zh">连接并安装 APK</span></h4>
+              <p><span class="i-en">Enable <a href="https://www.android.com/intl/en_uk/articles/enable-android-developer-settings/" target="_blank">developer mode</a>, connect via ADB, then install the client app.</span><span class="i-zh">启用<a href="https://www.android.com/intl/zh_cn/articles/enable-android-developer-settings/" target="_blank">开发者模式</a>，通过 ADB 连接设备，安装客户端应用。</span></p>
+              <pre><code>adb install mobileclaw/resources/apk/MobileClaw.apk</code></pre>
+            </div>
+          </div>
+          <div class="st">
+            <div class="st-dot">2</div>
+            <div class="st-body">
+              <h4><span class="i-en">Grant permissions</span><span class="i-zh">授予权限</span></h4>
+              <p><span class="i-en">Open the MobileClaw app. Grant <strong>Accessibility Service</strong> and <strong>Notification</strong> permissions.</span><span class="i-zh">打开 MobileClaw 应用，授予<strong>无障碍服务</strong>和<strong>通知</strong>权限。</span></p>
+            </div>
+          </div>
+          <div class="st">
+            <div class="st-dot">3</div>
+            <div class="st-body">
+              <h4><span class="i-en">Port forwarding</span><span class="i-zh">端口转发</span></h4>
+              <p><span class="i-en">Set <code>phone_port_mappings</code> in <code>config.yaml</code>, then forward the port.</span><span class="i-zh">在 <code>config.yaml</code> 中设置 <code>phone_port_mappings</code>，然后转发端口。</span></p>
+              <pre><code>adb forward tcp:51825 tcp:6666</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Launch -->
+      <div class="gs-col">
+        <h3><span class="i-en">Launch</span><span class="i-zh">启动</span></h3>
+        <div class="st-list">
+          <div class="st">
+            <div class="st-dot">1</div>
+            <div class="st-body">
+              <h4><span class="i-en">Configure</span><span class="i-zh">配置</span></h4>
+              <p><span class="i-en">Copy <code>config.yaml.example</code> to <code>config.yaml</code>, fill in model &amp; chat settings.</span><span class="i-zh">将 <code>config.yaml.example</code> 复制为 <code>config.yaml</code>，填写模型和聊天设置。</span></p>
+            </div>
+          </div>
+          <div class="st">
+            <div class="st-dot">2</div>
+            <div class="st-body">
+              <h4><span class="i-en">Start agent</span><span class="i-zh">启动智能体</span></h4>
+              <pre><code>mobileclaw config.yaml</code></pre>
+            </div>
+          </div>
+          <div class="st">
+            <div class="st-dot">3</div>
+            <div class="st-body">
+              <h4><span class="i-en">Customize</span><span class="i-zh">定制</span></h4>
+              <p><span class="i-en">Send messages or edit <code>profile.md</code> to customize.</span><span class="i-zh">发送消息或修改 <code>profile.md</code> 进行定制。</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ═══ Model Config ═══ -->
+<section class="sec" id="config">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-label"><span class="i-en">Configuration</span><span class="i-zh">配置</span></div>
+      <h2 class="sec-title">
+        <span class="i-en">Model Configuration</span><span class="i-zh">模型配置</span>
+      </h2>
+    </div>
+
+    <div class="cfg-wrap reveal reveal-delay-1">
+      <div class="cfg-info">
+        <p>
+          <span class="i-en">MobileClaw requires <strong style="color:var(--text)">two models</strong> to work. They should support OpenAI-compatible APIs. Each model needs three values: <code>url</code>, <code>key</code> and <code>name</code>.</span>
+          <span class="i-zh">MobileClaw 需要<strong style="color:var(--text)">两个模型</strong>才能工作，它们应支持 OpenAI 兼容的 API。每个模型需要三个配置值：<code>url</code>、<code>key</code> 和 <code>name</code>。</span>
+        </p>
+        <div class="tag-row">
+          <span class="tag tag-fm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 014 4c0 1.95-1.4 3.58-3.25 3.93L12 22"/><path d="M12 2a4 4 0 00-4 4c0 1.95 1.4 3.58 3.25 3.93"/><path d="M8.56 13a8 8 0 006.88 0"/></svg>
+            <span class="i-en">Foundation Model</span><span class="i-zh">基础模型</span>
+          </span>
+          <span class="tag tag-vlm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span class="i-en">GUI Vision Model</span><span class="i-zh">GUI 视觉模型</span>
+          </span>
+        </div>
+      </div>
+      <div class="cfg-code">
+        <pre><code>custom_fm_url: "https://api.openai.com/v1/chat/completions"
+custom_fm_key: "sk-xxx"
+custom_fm_name: "gpt-5.2-chat"
+
+custom_gui_vlm_url: "https://api.openai.com/v1/chat/completions"
+custom_gui_vlm_key: "sk-xxx"
+custom_gui_vlm_name: "gpt-5.2-chat"</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ═══ Chat Platforms ═══ -->
+<section class="sec" id="chat">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-label"><span class="i-en">Integrations</span><span class="i-zh">集成</span></div>
+      <h2 class="sec-title">
+        <span class="i-en">Chat Platforms</span><span class="i-zh">聊天平台</span>
+      </h2>
+      <p class="sec-desc">
+        <span class="i-en">MobileClaw supports multiple chat platforms. We recommend Zulip or Lark/Feishu since they support rich group features.</span>
+        <span class="i-zh">MobileClaw 支持多个聊天平台。推荐使用 Zulip 或飞书，因为它们支持丰富的群组功能。</span>
+      </p>
+    </div>
+
+    <div class="plat-grid reveal reveal-delay-1">
+      <div class="plat">
+        <div class="plat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </div>
+        <h3>Telegram</h3>
+        <p><span class="i-en">Create a bot via @BotFather and configure the token.</span><span class="i-zh">通过 @BotFather 创建机器人并配置 token。</span></p>
+      </div>
+      <div class="plat">
+        <div class="plat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/></svg>
+        </div>
+        <h3><span class="i-en">Lark / Feishu</span><span class="i-zh">飞书 / Lark</span></h3>
+        <p><span class="i-en">Create an app on Feishu Open Platform with Bot capability.</span><span class="i-zh">在飞书开放平台创建应用并启用机器人能力。</span></p>
+        <span class="plat-rec"><span class="i-en">Recommended</span><span class="i-zh">推荐</span></span>
+      </div>
+      <div class="plat">
+        <div class="plat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a2 2 0 01-2 2H9a2 2 0 01-2-2"/><path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17h8v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.87-3.13-7-7-7z"/><line x1="10" y1="20" x2="14" y2="20"/></svg>
+        </div>
+        <h3>QQ</h3>
+        <p><span class="i-en">Create a bot on QQ Open Platform.</span><span class="i-zh">在 QQ 开放平台创建机器人应用。</span></p>
+      </div>
+      <div class="plat">
+        <div class="plat-ico">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
+        </div>
+        <h3>Zulip</h3>
+        <p><span class="i-en">Create a bot in your Zulip organization settings.</span><span class="i-zh">在 Zulip 组织设置中创建机器人。</span></p>
+        <span class="plat-rec"><span class="i-en">Recommended</span><span class="i-zh">推荐</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- ═══ Acknowledgments ═══ -->
+<section class="sec" id="ack">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-label"><span class="i-en">Acknowledgments</span><span class="i-zh">致谢</span></div>
+      <h2 class="sec-title">
+        <span class="i-en">Built with gratitude</span><span class="i-zh">感谢每一位贡献者</span>
+      </h2>
+    </div>
+
+    <div class="ack-grid reveal reveal-delay-1">
+      <div class="ack-item">
+        <div class="ack-dot"></div>
+        <span><span class="i-en"><a href="https://air.tsinghua.edu.cn/en/" target="_blank">THU-AIR</a> team members</span><span class="i-zh"><a href="https://air.tsinghua.edu.cn/en/" target="_blank">THU-AIR</a> 团队成员</span></span>
+      </div>
+      <div class="ack-item">
+        <div class="ack-dot"></div>
+        <span><span class="i-en"><a href="https://github.com/openclaw/openclaw" target="_blank">openclaw</a> for the inspiration</span><span class="i-zh"><a href="https://github.com/openclaw/openclaw" target="_blank">openclaw</a> 提供的灵感</span></span>
+      </div>
+      <div class="ack-item">
+        <div class="ack-dot"></div>
+        <span><span class="i-en"><a href="https://github.com/HKUDS/nanobot" target="_blank">nanobot</a> for chat channel integration</span><span class="i-zh"><a href="https://github.com/HKUDS/nanobot" target="_blank">nanobot</a> 提供的聊天频道集成示例代码</span></span>
+      </div>
+      <div class="ack-item">
+        <div class="ack-dot"></div>
+        <span><span class="i-en"><a href="https://mobilellm.zulip.com/" target="_blank">Zulip</a> and <a href="https://www.feishu.cn/" target="_blank">Feishu</a> for sponsored accounts</span><span class="i-zh"><a href="https://mobilellm.zulip.com/" target="_blank">Zulip</a> 和 <a href="https://www.feishu.cn/" target="_blank">飞书</a> 赞助的团队账号</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Footer ═══ -->
+<footer>
+  <div class="wrap">
+    <p><span class="i-en">MobileClaw &mdash; Fully Autonomous Mobile Agent</span><span class="i-zh">MobileClaw &mdash; 全自主移动智能体</span></p>
+  </div>
+</footer>
+
+<script>
+function setLang(l){
+  document.body.className=l;
+  document.documentElement.lang=l==='zh'?'zh-CN':'en';
+  document.getElementById('langToggle').textContent=l==='zh'?'English':'中文';
+  localStorage.setItem('mc-lang',l);
+}
+function toggleLang(){setLang(document.body.className==='zh'?'en':'zh')}
+!function(){var s=localStorage.getItem('mc-lang');if(s){setLang(s);return}setLang((navigator.language||'').startsWith('zh')?'zh':'en')}();
+
+/* ── Scroll reveal observer ── */
+!function(){
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+}();
+</script>
+
+</body>
+</html>
