@@ -29,15 +29,17 @@ Unlike existing coding agents based on low-level system commands, third-party AP
 
 1. Clone this project.
 2. Run `cd MobileClaw` and `pip install -e .`
+3. Run `adb install mobileclaw/resources/apk/MobileClaw.apk` to install the Client App to your phone.
 
 ## How to Use
 
-1. Connect your Android device via ADB. Open development mode.
+1. Connect your Android device via ADB. Enable developer mode ([How to enable developer mode?](https://www.android.com/intl/en_uk/articles/enable-android-developer-settings/)).
 2. Copy `config.yaml.example` to `config.yaml` and fill in information.
    1. See [Model Configuration](#model-configuration) for how to config model providers.
    2. See [Chat App Configuration](#chat-app-configuration) for how to connect chat apps.
-3. Start your agent with `mobileclaw config.yaml`.
-4. Send messages to the agent or modify its `profile.md` to customize.
+3. Open the MobileClaw app and grant all requested permissions.
+4. Start your agent with `mobileclaw config.yaml`.
+5. Send messages to the agent or modify its `profile.md` to customize.
 
 
 ## Model Configuration
