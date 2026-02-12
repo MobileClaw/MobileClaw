@@ -10,8 +10,6 @@
 
 ----
 
-**MobileClaw** is a **Fully Autonomous Mobile Agent**.
-
 MobileClaw's mission is to enable openclaw-style agents on mobile devices (e.g. your secondary phone).
 
 Unlike existing coding agents based on low-level system commands, third-party APIs and MCP services, MobileClaw executes tasks mostly through GUI like human, which means higher usability and reliability for everyone (including non-experts) in daily use.
@@ -23,6 +21,10 @@ Unlike existing coding agents based on low-level system commands, third-party AP
 - Memory organized as .md files.
 - Communication with users via daily messaging apps.
 
+**Important Notice:** 
+- To avoid security risks, please **DO NOT** use MobileClaw to control your main device.
+- We strongly suggest using **seperated app accounts** on MobileClaw-controlled devices and **DO NOT** spam the Internet.
+
 ## How to Install
 
 1. Clone this project.
@@ -30,12 +32,13 @@ Unlike existing coding agents based on low-level system commands, third-party AP
 
 ## How to Use
 
-1. Connect your Android device via ADB.
+1. Connect your Android device via ADB. Open development mode.
 2. Copy `config.yaml.example` to `config.yaml` and fill in information.
    1. See [Model Configuration](#model-configuration) for how to config model providers.
    2. See [Chat App Configuration](#chat-app-configuration) for how to connect chat apps.
 3. Start your agent with `mobileclaw config.yaml`.
 4. Send messages to the agent or modify its `profile.md` to customize.
+
 
 ## Model Configuration
 
