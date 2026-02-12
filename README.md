@@ -1,5 +1,7 @@
 # MobileClaw - Fully Autonomous Mobile Agent
 
+[[中文文档](README_zh.md)] | [English]
+
 <div align="center">
   <img src="_res/brand.png" alt="mobileclaw" width="600">
 </div>
@@ -29,7 +31,6 @@ Unlike existing coding agents based on low-level system commands, third-party AP
 
 1. Clone this project.
 2. Run `cd MobileClaw` and `pip install -e .`
-3. Run `adb install mobileclaw/resources/apk/MobileClaw.apk` to install the Client App to your phone.
 
 ## How to Use
 
@@ -43,8 +44,8 @@ Unlike existing coding agents based on low-level system commands, third-party AP
 
 ## Android Device Set Up
 
-1. Connect your Android device via ADB. Open development mode.
-2. Install `MobileClaw.apk` located in `mobileclaw/resources`.
+1. Connect your Android device via ADB. Enable developer mode. ([How to enable developer mode?](https://www.android.com/intl/en_uk/articles/enable-android-developer-settings/))
+2. Run `adb install mobileclaw/resources/apk/MobileClaw.apk` to install the Client App to your phone.
 3. Grant **Accessibility Service permission** and **Notification permission**; the WebSocket service will start automatically on the Android device.
 4. In `config.yaml`, set the port for PC-side forwarding. Configure separate ports for each device in `phone_port_mappings`, like this:
     ```yaml
