@@ -33,13 +33,26 @@ Unlike existing coding agents based on low-level system commands, third-party AP
 
 ## How to Use
 
-1. Connect your Android device via ADB. Enable developer mode ([How to enable developer mode?](https://www.android.com/intl/en_uk/articles/enable-android-developer-settings/)).
+1. Set up your Android device. See [Android Device Set Up](#android-device-set-up) for details.
 2. Copy `config.yaml.example` to `config.yaml` and fill in information.
    1. See [Model Configuration](#model-configuration) for how to config model providers.
    2. See [Chat App Configuration](#chat-app-configuration) for how to connect chat apps.
-3. Open the MobileClaw app and grant all requested permissions.
-4. Start your agent with `mobileclaw config.yaml`.
-5. Send messages to the agent or modify its `profile.md` to customize.
+3. Start your agent with `mobileclaw config.yaml`.
+4. Send messages to the agent or modify its `profile.md` to customize.
+
+
+## Android Device Set Up
+
+1. Connect your Android device via ADB. Open development mode.
+2. Install `MobileClaw.apk` located in `mobileclaw/resources`.
+3. Grant **Accessibility Service permission** and **Notification permission**; the WebSocket service will start automatically on the Android device.
+4. In `config.yaml`, set the port for PC-side forwarding. Configure separate ports for each device in `phone_port_mappings`, like this:
+    ```yaml
+    phone_port_mappings:
+        phone1: 51825
+        phone2: 51826
+    ```
+5. On your computer, run `adb forward tcp:<device_port> tcp:6666` to forward the Android WebSocket service to your PC. `<device_port>` is the port you set in the config.
 
 
 ## Model Configuration
