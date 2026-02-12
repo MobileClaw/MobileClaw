@@ -12,7 +12,9 @@
 
 **MobileClaw** is a **Fully Autonomous Mobile Agent**.
 
-Unlike existing coding agents based on low-level system commands, third-party APIs and MCP services, MobileClaw executes tasks mostly through GUI like human, which means higher usability and reliability for everyone in daily use.
+MobileClaw's mission is to enable openclaw-style agents on mobile devices (e.g. your secondary phone).
+
+Unlike existing coding agents based on low-level system commands, third-party APIs and MCP services, MobileClaw executes tasks mostly through GUI like human, which means higher usability and reliability for everyone (including non-experts) in daily use.
 
 **Features**:
 - Natively built for mobile devices (e.g. Android).
