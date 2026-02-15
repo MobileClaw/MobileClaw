@@ -9,7 +9,7 @@ class Chat_Interface(UniInterface):
         from mobileclaw.agent import AutoAgent
         assert isinstance(agent, AutoAgent)
         self._tag = 'chat'
-        self.chat_channels = agent.config.chat_channels
+        self.chat_channels = agent.config.chat_channels.split(',')
         self.chat_clients = {}
         self.default_chat_channel = agent.config.default_chat_channel
         # Global channel settings for logs and reports (set via commands)
@@ -62,6 +62,9 @@ class Chat_Interface(UniInterface):
         """
         if channel is None:
             channel = self.default_chat_channel
+        channel = channel.lower()
+        if channel not in self.chat_channels:
+            raise Exception(f'Unknown channel: {channel}; Should be one of {self.chat_channels}')
         return self.chat_clients.get(channel)
 
     def send_reply(self, message, previous_message, channel=None):

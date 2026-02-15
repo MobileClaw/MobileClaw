@@ -377,15 +377,18 @@ class File_Interface(UniInterface):
 
         return "\n".join(result_lines)
 
-    def search(self, file_or_dir_path: str, text: str, line_limit: int = 100):
+    def search(self, file_or_dir_path: str, text: str, line_limit: int = 100, exclude_dirs: list = None):
         """
         Search the file(s) for given text.
         :param file_or_dir_path: File or directory path to search in
         :param text: Text to search for
         :param line_limit: Maximum number of lines to retrieve per file (default: 100)
+        :param exclude_dirs: List of directory names to exclude from search (default: ['_temp', '_logs'])
         Returns a list of text elements, each element contains the matched file name,
         followed by the matched content with line numbers.
         """
+        if exclude_dirs is None:
+            exclude_dirs = ['_temp', '_logs']
         # Check permission
         if not self._check_permission(file_or_dir_path, 'read'):
             return [f"Permission denied: search({file_or_dir_path})"]
@@ -414,6 +417,9 @@ class File_Interface(UniInterface):
         elif os.path.isdir(search_path):
             # Search in directory
             for root, dirs, files in os.walk(search_path):
+                # Filter out excluded directories (modify dirs in-place to prevent traversal)
+                dirs[:] = [d for d in dirs if d not in exclude_dirs]
+
                 for file in files:
                     if file.endswith('.md'):
                         file_path = os.path.join(root, file)
@@ -437,7 +443,7 @@ class File_Interface(UniInterface):
 
         return result_list
 
-    def search_semantic(self, file_or_dir_path: str, query_text: str, top_k: int = 5, line_limit: int = 100):
+    def search_semantic(self, file_or_dir_path: str, query_text: str, top_k: int = 5, line_limit: int = 100, exclude_dirs: list = None):
         """
         Semantic search using embeddings to find files with similar content.
 
@@ -445,9 +451,12 @@ class File_Interface(UniInterface):
         :param query_text: Query text to search for semantically
         :param top_k: Number of top results to return (default: 5)
         :param line_limit: Maximum number of lines to retrieve per file (default: 100)
+        :param exclude_dirs: List of directory names to exclude from search (default: ['_temp', '_logs'])
         Returns a list of text elements, each element contains the matched file name,
         followed by the file content with line numbers, sorted by semantic similarity.
         """
+        if exclude_dirs is None:
+            exclude_dirs = ['_temp', '_logs']
         # Check permission
         if not self._check_permission(file_or_dir_path, 'read'):
             return [f"Permission denied: search_semantic({file_or_dir_path})"]
@@ -464,6 +473,9 @@ class File_Interface(UniInterface):
             file_paths.append(search_path)
         elif os.path.isdir(search_path):
             for root, dirs, files in os.walk(search_path):
+                # Filter out excluded directories (modify dirs in-place to prevent traversal)
+                dirs[:] = [d for d in dirs if d not in exclude_dirs]
+
                 for file in files:
                     if file.endswith('.md'):
                         file_paths.append(os.path.join(root, file))

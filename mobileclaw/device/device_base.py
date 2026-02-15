@@ -176,7 +176,7 @@ class DeviceControllerBase(UniInterface):
             self.agent.sleep(0.5)
         if step + 1 >= max_steps and task_status == 'ongoing':
             self.agent._log_and_report(f'[WARNING] Task stopped due to step limit: {max_steps}. You may need to start a new task to complete the remaining work.', actions_and_results, task_tag=task_tag)
-        self.agent._conclude_task(f'(With device {self.device_name}) {task}', actions_and_results=actions_and_results)
+        # self.agent._conclude_task(f'(With device {self.device_name}) {task}', actions_and_results=actions_and_results)
         return results
 
     def _create_device_api_for_execution(self, notes, results, actions_and_results):
