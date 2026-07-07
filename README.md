@@ -43,6 +43,7 @@ Unlike existing coding agents based on low-level system commands, third-party AP
 
 ## News
 
+- 2026.07.07 Check out our OS-level mobile agent framework [AOHP](https://github.com/aohp-os/aohp)!
 - 2026.03.27 MobileClaw app v0.3.3 released.
 - 2026.03.26 Added support for Weixin chat channel.
 - 2026.02.08 Project kick-off.
